@@ -18,6 +18,7 @@ const signupSchema = z.object({
 
 router.post("/signup", async (req, res) => {
   const body = req.body;
+  console.log(body);
   const { success } = signupSchema.safeParse(body);
   if (!success) {
     return res.status(411).json({ message: "Incorrect inputs" });
