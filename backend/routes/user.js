@@ -18,7 +18,6 @@ const signupSchema = z.object({
 
 router.post("/signup", async (req, res) => {
   const body = req.body;
-  console.log(body);
   const { success } = signupSchema.safeParse(body);
   if (!success) {
     return res.status(411).json({ message: "Incorrect inputs" });
@@ -35,7 +34,8 @@ router.post("/signup", async (req, res) => {
     firstName: body.firstName,
     lastName: body.lastName,
   });
-  const currId = currUser._id;
+  const currId = currUser._id.toString();
+  console.log(currId);
 
   const acc = await Account.create({
     userId: currId,
@@ -101,7 +101,7 @@ router.put("/", authMiddleware, async (req, res) => {
 
 //Bulk route
 router.get("/bulk", authMiddleware, async (req, res) => {
-  const name = req.query.name.toLowerCase() || "";
+  const name = req.query.name || "";
 
   const users = await User.find({
     $or: [
@@ -129,4 +129,17 @@ router.get("/bulk", authMiddleware, async (req, res) => {
     })),
   });
 });
+
+//get User details
+router.get("/me", authMiddleware, async (req, res) => {
+  const currUserId = req.userId;
+  const currUser = await User.findOne({ _id: currUserId });
+  const currAcc = await Account.findOne({ userId: currUserId });
+  return res.status(200).json({
+    userId: currUserId,
+    firstName: currUser.firstName,
+    balance: currAcc.balance,
+  });
+});
+
 module.exports = router;
